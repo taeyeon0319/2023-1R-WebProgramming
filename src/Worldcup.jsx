@@ -25,7 +25,6 @@ function Worldcup() {
     const [game, setGame] = useState([]);
     const [round, setRound] = useState(0);
     const [nextGame, setNextGame] = useState([]);
-
     const [selectedItem, setSelectedItem] = useState(null);
 
     useEffect(() => {
@@ -34,7 +33,9 @@ function Worldcup() {
         if (selectedItem) {
             timer = setTimeout(() => {
                 console.log(`Selected item: ${selectedItem.name}`);
-                setSelectedItem(null); 
+                setSelectedItem(null);
+                setNextGame([]);
+                setRound((round) => round + 1);
             }, 3000);
         }
 
@@ -59,24 +60,36 @@ function Worldcup() {
         }
     }, [round]);
 
+    if (selectedItem) {
+        return (
+            <div className="worldcup-title">
+                <p className='choose'>선택된 아이템:</p>
+                <img src={selectedItem.src} alt={selectedItem.name} />
+                <p className="worldcup-item-title">{selectedItem.name}</p>
+            </div>
+        );
+    }
+
     if (game.length === 1) {
         return (
             <div className="worldcup-title">
                 <p>아이슈쿠뤼임 월드컵 우승!!!!!!!!</p>
-                <img src={game[0].src} />
+                <img src={game[0].src} alt={game[0].name} />
                 <p className="worldcup-item-title">{game[0].name}</p>
             </div>
         );
     }
 
-    if (game.length === 0 || round + 1 > game.length / 2) return <p>로딩중입니다.</p>;
+    if (game.length === 0 || round + 1 > game.length / 2) {
+        return <p>로딩중입니다.</p>;
+    }
 
     return (
         <div className="worldcup-container">
             <div className="worldcup-title">
                 <p>
-                    아이슈쿠뤼임 월드컵 {round + 1} / {game.length / 2}{" "}
-                    <b>{game.length === 2 ? "결승" : game.length + "강"}</b>
+                    아이슈쿠뤼임 월드컵 {round + 1} / {game.length / 2}{' '}
+                    <b>{game.length === 2 ? '결승' : game.length + '강'}</b>
                 </p>
             </div>
             <div>
@@ -84,9 +97,10 @@ function Worldcup() {
                     <div className="worldcup-item">
                         <img
                             src={game[round * 2].src}
+                            alt={game[round * 2].name}
                             onClick={() => {
                                 setNextGame((prev) => prev.concat(game[round * 2]));
-                                setRound((round) => round + 1);
+                                setSelectedItem(game[round * 2]);
                             }}
                         />
                         <div className="worldcup-item-title">
@@ -100,7 +114,7 @@ function Worldcup() {
                             src={game[round * 2 + 1].src}
                             onClick={() => {
                                 setNextGame((prev) => prev.concat(game[round * 2 + 1]));
-                                setRound((round) => round + 1);
+                                setSelectedItem(game[round * 2 + 1]);
                             }}
                         />
                         <div className="worldcup-item-title">
