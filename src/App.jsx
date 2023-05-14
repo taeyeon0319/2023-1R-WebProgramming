@@ -1,58 +1,61 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 function App() {
   const [row, setRow] = useState([]);
-  if (row.length == 0) {
-    const res = fetch("http://openapi.seoul.go.kr:8088/78636e4e496269673634556a795559/json/RealtimeCityAir/1/25").then(
-      function (res2) {
-        res2.json().then(function (res3) {
+
+  useEffect(() => {
+    console.log('mount or update');
+    return () => {
+      console.log('unmount');
+    }
+  });
+
+  useEffect(() => {
+    console.log('mount only');
+
+    fetch("http://openapi.seoul.go.kr:8088/78636e4e496269673634556a795559/json/RealtimeCityAir/1/25").then(
+      (res2) => {
+        res2.json().then((res3) => {
           setRow(res3.RealtimeCityAir.row);
         })
       }
     )
   }
-  console.log(row);
+    , []);
+
+  useEffect(() => {
+    console.log('update only', row);
+  }, [row]);
+
 
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + Resoto</h1>
       {/* 여기부터 */}
       <table>
         <thead>
-          <th>이름</th>
-          <th>PM10</th>
-          <th>O3</th>
-          <th>상태</th>
+          <tr>
+            <th>이름</th>
+            <th>PM10</th>
+            <th>O3</th>
+            <th>상태</th>
+          </tr>
+
         </thead>
         <tbody>
           {
-            row.map(function (obj) {
-              return <tr>
-                <td>{obj.MSRSTE_NM}</td>
-                <td>{obj.PM10}</td>
-                <td>{obj.O3}</td>
-                <td>{obj.IDEX_NM}</td>
+            row.map((gu, index) => {
+              return <tr key={index}>
+                <td>{gu.MSRSTE_NM}</td>
+                <td>{gu.PM10}</td>
+                <td>{gu.O3}</td>
+                <td>{gu.IDEX_NM}</td>
               </tr>
             })
           }
         </tbody>
       </table>
-
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more울랄라~~
-      </p>
     </>
   )
 }
