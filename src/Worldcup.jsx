@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react';
-import './Worldcup.css'
+import './Worldcup.css';
 
 function Worldcup() {
     const candidate = [
@@ -27,6 +27,26 @@ function Worldcup() {
     const [nextGame, setNextGame] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
 
+    const [stat, setStat] = useState({
+        "빠삐코": 0,
+        "투게더": 0,
+        "엑설런트": 0,
+        "월드콘": 0,
+        "붕어싸만코": 0,
+        "구구크러스터": 0,
+        "빵또아": 0,
+        "폴라포": 0,
+        "스크류바": 0,
+        "허쉬초코바": 0,
+        "바밤바": 0,
+        "비비빅": 0,
+        "배뱀배": 0,
+        "더위사냥": 0,
+        "쿠앤크": 0,
+        "옥동자": 0,
+
+    })
+
     useEffect(() => {
         let timer;
 
@@ -34,15 +54,18 @@ function Worldcup() {
             timer = setTimeout(() => {
                 console.log(`Selected item: ${selectedItem.name}`);
                 setSelectedItem(null);
-                setNextGame([]);
-                setRound((round) => round + 1);
-            }, 3000);
+            }, 1000);
         }
 
         return () => clearTimeout(timer);
     }, [selectedItem]);
 
+    //처음 worldcup 컴포넌트가 단 한 번 실행하는 함수
     useEffect(() => {
+        const 문자열 = localStorage.getItem("2020112107");
+        if (문자열 != null) {
+            setStat(JSON.parse(문자열));
+        }
         setGame(
             candidate.map((c) => {
                 return { name: c.name, src: c.src, order: Math.random() };
@@ -53,6 +76,7 @@ function Worldcup() {
     }, []);
 
     useEffect(() => {
+        console.log(game.length)
         if (game.length > 1 && round + 1 > game.length / 2) {
             setGame(nextGame);
             setNextGame([]);
@@ -71,19 +95,64 @@ function Worldcup() {
     }
 
     if (game.length === 1) {
+        localStorage.setItem("2020112107", JSON.stringify(stat));
+    
+        // Object.keys(stat)를 사용하여 키 배열을 가져온 후, 정렬합니다.
+        const sortedKeys = Object.keys(stat).sort((a, b) => stat[b] - stat[a]);
+    
         return (
             <div className="worldcup-title">
                 <p>아이슈쿠뤼임 월드컵 우승!!!!!!!!</p>
                 <img src={game[0].src} alt={game[0].name} />
-                <p className="worldcup-item-title">{game[0].name}</p>
+                <p>{game[0].name} {stat[game[0].name]}번 승리</p>
+                <p>**아이슈쿠뤼임 월드컵 순위**</p>
+                <center>
+                    <table>
+                    {sortedKeys.map(name => {
+                        return <tr key={name}><td>{name}</td><td>{stat[name]}</td></tr>
+                    })}
+                </table>
+                </center>
+                
             </div>
         );
     }
+    
 
     if (game.length === 0 || round + 1 > game.length / 2) {
         return <p>로딩중입니다.</p>;
     }
+    const left = round * 2, right = round * 2 + 1;
 
+    console.log(stat);
+
+    // 왜 두번씩 출력이 되는건가? ==> 
+    const leftFunction = () => {
+        // 통계를 내자...!
+        console.log('left function')
+        if (game.length === 2) {
+            setStat({
+                ...stat, //
+                [game[left].name]: stat[game[left].name] + 1
+            })
+        }
+        setNextGame((prev) => prev.concat(game[left]));
+        setSelectedItem(game[left]);
+        setRound(round => round + 1);
+    }
+
+    const rightFunction = () => {
+        console.log('right function')
+        if (game.length === 2) {
+            setStat({
+                ...stat, //
+                [game[right].name]: stat[game[right].name] + 1
+            })
+        }
+        setNextGame((prev) => prev.concat(game[right]));
+        setSelectedItem(game[right]);
+        setRound(round => round + 1);
+    }
     return (
         <div className="worldcup-container">
             <div className="worldcup-title">
@@ -95,37 +164,23 @@ function Worldcup() {
             <div>
                 <div className="worldcup-items">
                     <div className="worldcup-item">
-                        <img
-                            src={game[round * 2].src}
-                            alt={game[round * 2].name}
-                            onClick={() => {
-                                setNextGame((prev) => prev.concat(game[round * 2]));
-                                setSelectedItem(game[round * 2]);
-                            }}
-                        />
+                        <img src={game[left].src} alt={game[left].name} onClick={leftFunction} />
                         <div className="worldcup-item-title">
                             <p style={{ textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)" }}>
-                                {game[round * 2].name}
+                                {game[left].name}
                             </p>
                         </div>
                     </div>
                     <div className="worldcup-item">
-                        <img
-                            src={game[round * 2 + 1].src}
-                            onClick={() => {
-                                setNextGame((prev) => prev.concat(game[round * 2 + 1]));
-                                setSelectedItem(game[round * 2 + 1]);
-                            }}
-                        />
+                        <img src={game[right].src} alt={game[right].name} onClick={rightFunction} />
                         <div className="worldcup-item-title">
                             <p style={{ textShadow: "2px 2px 4px rgba(0, 0, 0, 0.5)" }}>
-                                {game[round * 2 + 1].name}
+                                {game[right].name}
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     );
 }
